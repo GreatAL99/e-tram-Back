@@ -69,7 +69,7 @@ public class EtramApplication implements CommandLineRunner{
 	@Override
 	public void run(String... args) throws Exception {
 		configurationSource.exposeIdsFor(Station.class,Horaire.class,Tram.class,Voyage.class,Voyageur.class,Ticket.class,Solde.class,ResGuichet.class,Admin.class);
-		ticketRepository.save(new Ticket(null,false,177013,6,null,voyageurRepository.getOne("W419826")));
+		//ticketRepository.save(new Ticket(null,false,177013,6,null,voyageurRepository.getOne("W419826")));
 		/*Tram T = tramRepository.getOne("T145");
 		T.setNom("Tram145");
 		T.setRole("tram");

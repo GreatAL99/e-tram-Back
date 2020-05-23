@@ -133,7 +133,7 @@ public class TicketController {
 					exist = true;
 			}
 		}
-		while (!exist);
+		while (exist);
 		return rand;
 	}
 	@GetMapping(value="/som/{cin}")
