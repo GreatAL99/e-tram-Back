@@ -4,7 +4,6 @@ import java.util.Date;
 
 import java.util.List;
 
-
 import org.sid.Etram2.Entities.ResGuichet;
 import org.sid.Etram2.Entities.Solde;
 import org.sid.Etram2.Entities.Voyageur;
@@ -31,48 +30,51 @@ public class ResGuichetController {
 	private VoyageurRepository voyageurRepository;
 	@Autowired
 	private SoldeRepository soldeRepository;
-	
-	@RequestMapping(value = "/listResponsables",method = RequestMethod.GET)
-	public List<ResGuichet> listResponsablesG()
-	{
+
+	@RequestMapping(value = "/listResponsables", method = RequestMethod.GET)
+	public List<ResGuichet> listResponsablesG() {
 		return resGuichetRepository.getAll();
 	}
+
 	@GetMapping(value = "/listResponsables/{cin}")
-	public ResGuichet listResponsables(@PathVariable(name = "cin") String cin)
-	{
+	public ResGuichet listResponsables(@PathVariable(name = "cin") String cin) {
 		return resGuichetRepository.findById(cin).get();
 	}
+
 	@DeleteMapping(value = "/listResponsables/{cin}")
-	public void deleteresGuichet(@PathVariable(name = "cin") String cin)
-	{
+	public void deleteresGuichet(@PathVariable(name = "cin") String cin) {
 		resGuichetRepository.deleteById(cin);
 	}
+
 	@GetMapping(value = "/alimenter/{cin}&{somme}&{cinR}")
-	public void alimenterCompte(@PathVariable(name = "cin") String cin,@PathVariable(name = "somme") double somme,@PathVariable(name = "cinR") String cinR)
-	{
+	public void alimenterCompte(@PathVariable(name = "cin") String cin, @PathVariable(name = "somme") double somme,
+			@PathVariable(name = "cinR") String cinR) {
 		Voyageur voyageur = voyageurRepository.findByUsername(cin);
 		ResGuichet responsable = resGuichetRepository.findByUsername(cinR);
-		if(voyageur == null) throw new RuntimeException("CIN n'existe pas !");
+		if (voyageur == null)
+			throw new RuntimeException("CIN n'existe pas !");
 		else {
-			responsable.setSommeVtotale(responsable.getSommeVtotale() + somme);
-			resGuichetRepository.save(responsable);
-			voyageur.setTramSolde(voyageur.getTramSolde() + somme);
-			voyageurRepository.save(voyageur);
-			soldeRepository.save(new Solde(null,somme,new Date(),voyageur,responsable));
+			if (somme <= 0)
+				throw new RuntimeException("Impossible de verser une somme négative ou nulle!");
+			else {
+				responsable.setSommeVtotale(responsable.getSommeVtotale() + somme);
+				resGuichetRepository.save(responsable);
+				voyageur.setTramSolde(voyageur.getTramSolde() + somme);
+				voyageurRepository.save(voyageur);
+				soldeRepository.save(new Solde(null, somme, new Date(), voyageur, responsable));
+			}
 		}
 	}
+
 	@PutMapping(value = "/updateR/{cin}")
-	public ResGuichet updateR(@PathVariable(name="cin") String cin, @RequestBody ResGuichet r)
-	{
+	public ResGuichet updateR(@PathVariable(name = "cin") String cin, @RequestBody ResGuichet r) {
 		r.setUsername(cin);
 		return resGuichetRepository.save(r);
 	}
+
 	@GetMapping(value = "/resGuichet/{cin}")
-	public ResGuichet getResBycin(@PathVariable(name="cin") String cin)
-	{
+	public ResGuichet getResBycin(@PathVariable(name = "cin") String cin) {
 		return resGuichetRepository.findByUsername(cin);
 	}
-
-	
 
 }

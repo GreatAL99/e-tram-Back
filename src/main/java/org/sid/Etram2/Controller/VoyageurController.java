@@ -156,7 +156,7 @@ public class VoyageurController {
 		else {
 		if (!password.equals(repassword)) throw new RuntimeException("Le mot de passe doit etre la meme !");
 		else
-			voyageurRepository.save(new Voyageur(username,nom,prenom,adresse,tel,password,email,"USER",0,11,10,null,null));
+			voyageurRepository.save(new Voyageur(username,nom,prenom,adresse,tel,password,email,"voyageur",0,11,10,null,null));
 		return v;
 		}
 	}

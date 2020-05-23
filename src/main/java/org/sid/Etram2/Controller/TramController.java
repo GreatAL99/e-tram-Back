@@ -1,10 +1,14 @@
 package org.sid.Etram2.Controller;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import org.sid.Etram2.Entities.Horaire;
 import org.sid.Etram2.Entities.Ticket;
 import org.sid.Etram2.Entities.Tram;
 import org.sid.Etram2.Entities.Voyageur;
+import org.sid.Etram2.dao.HoraireRepository;
 import org.sid.Etram2.dao.TicketRepository;
 import org.sid.Etram2.dao.TramRepository;
 import org.sid.Etram2.dao.VoyageurRepository;
@@ -29,6 +33,8 @@ public class TramController {
 	private TicketRepository ticketRepository;
 	@Autowired
 	private VoyageurRepository voyageurRepository;
+	@Autowired
+	private HoraireRepository horaireRepository;
 	
 	@RequestMapping(value = "/listTrams",method = RequestMethod.GET)
 	public List<Tram> listTrams()
@@ -57,29 +63,48 @@ public class TramController {
 		tram.setUsername(id_tram);
 		return tramRepository.save(tram);
 	}
-	@GetMapping(value = "/valider/{cin}&{code_val}")
-	public void valider(@PathVariable(name = "cin") String cin,@PathVariable(name = "code_val") int code_val)
-	{
-		Voyageur v = voyageurRepository.findByUsername(cin);
-		Ticket ticket = new Ticket();
-		int valide = 0;
-		if(v == null ) throw new RuntimeException("CIN n'existe pas !");
-		else {
-			for(Ticket t : v.getTickets()) {
-				if(t.getCode_val() == code_val && t.isEtat_val()==false) {
-					valide = 1;
-					ticket = t;
+	
+	//RE-DO
+
+	public int comparer(String h1, String hn) {
+		return Integer.parseInt(hn.substring(0, 2)) * 60 + Integer.parseInt(hn.substring(3, 5))
+				- (Integer.parseInt(h1.substring(3, 5)) + 60 * Integer.parseInt(h1.substring(0, 2)));
+	}
+	
+	@GetMapping(value = "/valider/{code}&{idtram}")
+	public void valider(@PathVariable(name = "code") int code, @PathVariable(name = "idtram") String idtram) {
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		LocalDateTime now = LocalDateTime.now();
+		String dateN = dtf.format(now).substring(0, 10);
+		String heureN = dtf.format(now).substring(11, 16);
+
+		int min = 100000;
+		Long idmin = null;
+
+		for (Ticket t : ticketRepository.findAll()) {
+			if (t.getCode_val() == code) {
+				t.setEtat_val(true);
+				t.setCode_val(0);
+				for (Horaire h : horaireRepository.findAll()) {
+					if (h.getDate().equals(dateN) && (((h.getVoyage()).getTram()).getUsername()).equals(idtram)
+							&& h.getHeure().compareTo(heureN) <= 0 && comparer(h.getHeure(), heureN) < min) {
+						idmin = h.getId_horaire();
+						min = comparer(h.getHeure(), heureN);
+					}
 				}
-		}
-			if(valide == 1) {
-				ticket.setEtat_val(true);
-				ticketRepository.save(ticket);
+				if (idmin != null) {
+					t.setHoraire(horaireRepository.getOne(idmin));
+					ticketRepository.save(t);
+					//return "Ticket Validé";
+					throw new RuntimeException("Ticket Validé");
+				}
+				else {
+					throw new RuntimeException("Aucun horaire n'est disponible!");
+				}
 			}
-			else {
-				throw new RuntimeException("Code n'existe pas !");
-			}
 		}
+		//return "Code erroné! Veuillez vérifier votre code SVP.";
+		throw new RuntimeException("Code erroné! Veuillez vérifier votre code SVP.");
+	
 	}
 }
-
-

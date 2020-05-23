@@ -122,7 +122,17 @@ public class TicketController {
 	}
 	@GetMapping(value="/random")
 	public int random() {
-		int rand = ThreadLocalRandom.current().nextInt(100000,999999);
+		int rand;
+		boolean exist;
+		do {
+			rand = ThreadLocalRandom.current().nextInt(100000,999999);
+			exist = false;
+			for (Ticket t : listT()) {
+				if (t.getCode_val()==rand)
+					exist = true;
+			}
+		}
+		while (!exist);
 		return rand;
 	}
 	@GetMapping(value="/som/{cin}")
@@ -146,23 +156,26 @@ public class TicketController {
 		}
 		return list;
 	}
-	@PostMapping(value = "/acheter/{cin}&{nbTickets}&{date}&{station}")
-	public void acheter(@PathVariable(name = "cin") String cin,@PathVariable(name = "nbTickets") int nbTickets
+	
+	//RE-DO: Nbtickets
+	
+	@GetMapping(value = "/acheter/{cin}&{nbTickets}") //&{date}&{station}
+	public void acheter(@PathVariable(name = "cin") String cin,@PathVariable(name = "nbTickets") int nbTickets/*
 			,@PathVariable(name = "date") String date,
-			@PathVariable(name = "station") String station) {
+			@PathVariable(name = "station") String station*/) {
 		Voyageur v = voyageurRepository.findByUsername(cin);
 		double prix  = getPrix();
 		boolean find = false;
 		Horaire horaire = new Horaire();
 		List<String> liste = new ArrayList<>();
-		if(nbTickets > v.getNbTickets()) {
+		/*if(nbTickets > v.getNbTickets()) {
 			throw new RuntimeException("Vous avez dépasse le nombre maximum de tickets qui est " + v.getNbTickets());
 		}
-		else {
+		else {*/
 			if(v.getTramSolde() < prix*nbTickets) {
 				throw new RuntimeException("Solde insuffisant");
 			}
-			else {
+			else {/*
 				for(Horaire h : listH()) {
 					if(h.getDate().compareTo(date) == 0) {
 						liste.add(h.getStation().getName());
@@ -182,18 +195,15 @@ public class TicketController {
 						throw new RuntimeException("Aucun horaire ne correspond à cette station");
 					}
 					else {
-					
+					*/
 						v.setTramSolde(v.getTramSolde() - prix*nbTickets);
 						voyageurRepository.save(v);
 						for(int i=0;i<nbTickets;i++) {
-						ticketRepository.save(new Ticket(null,false,random(),prix,horaire,v));
+						ticketRepository.save(new Ticket(null,false,random(),prix,null,v));
 					}
 				 }
 			}
-			}
-		}
-	}
-	
+		
 	
 	@GetMapping(value="/nbtickets/{cin}")
 	public int nbTicketsByCin(@PathVariable(name = "cin")String cin){
