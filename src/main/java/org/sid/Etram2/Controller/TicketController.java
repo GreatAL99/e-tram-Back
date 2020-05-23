@@ -171,7 +171,7 @@ public class TicketController {
 	@GetMapping(value = "/acheter/{cin}&{nbTickets}")
 	public void acheter(@PathVariable(name = "cin") String cin,@PathVariable(name = "nbTickets") int nbTickets) {
 		Voyageur v = voyageurRepository.findByUsername(cin);
-		double prix  = getPrix();
+		double prix = 6;
 		if(v.getTramSolde() < prix*nbTickets) {
 				throw new RuntimeException("Solde insuffisant");
 			}
