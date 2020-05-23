@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin(origins = "*")
@@ -167,51 +168,21 @@ public class TicketController {
 		return ticketRepository.getAllVNV(etat_val,username,paging);
 	}
 	
-	@PostMapping(value = "/acheter/{cin}&{nbTickets}") //&{date}&{station}
-	public void acheter(@PathVariable(name = "cin") String cin,@PathVariable(name = "nbTickets") int nbTickets/*
-			,@PathVariable(name = "date") String date,
-			@PathVariable(name = "station") String station*/) {
+	@GetMapping(value = "/acheter/{cin}&{nbTickets}")
+	public void acheter(@PathVariable(name = "cin") String cin,@PathVariable(name = "nbTickets") int nbTickets) {
 		Voyageur v = voyageurRepository.findByUsername(cin);
 		double prix  = getPrix();
-		boolean find = false;
-		Horaire horaire = new Horaire();
-		List<String> liste = new ArrayList<>();
-		/*if(nbTickets > v.getNbTickets()) {
-			throw new RuntimeException("Vous avez dépasse le nombre maximum de tickets qui est " + v.getNbTickets());
-		}
-		else {*/
-			if(v.getTramSolde() < prix*nbTickets) {
+		if(v.getTramSolde() < prix*nbTickets) {
 				throw new RuntimeException("Solde insuffisant");
 			}
-			else {/*
-				for(Horaire h : listH()) {
-					if(h.getDate().compareTo(date) == 0) {
-						liste.add(h.getStation().getName());
-						horaire = h;
-						find = true;
-						
-					}
+		else {
+			v.setTramSolde(v.getTramSolde() - prix*nbTickets);
+			voyageurRepository.save(v);
+			for(int i=0;i<nbTickets;i++) {
+				ticketRepository.save(new Ticket(null,false,random(),prix,null,v));
 				}
-				
-				if(find == false) {
-					throw new RuntimeException("Date non trouvé.Veuillez consulter la liste des horaires");
-
-				}
-				else {
-					
-					if(!liste.contains(station)) {
-						throw new RuntimeException("Aucun horaire ne correspond à cette station");
-					}
-					else {
-					*/
-						v.setTramSolde(v.getTramSolde() - prix*nbTickets);
-						voyageurRepository.save(v);
-						for(int i=0;i<nbTickets;i++) {
-						ticketRepository.save(new Ticket(null,false,random(),prix,null,v));
-					}
-				 }
 			}
-		
+		}
 	
 	@GetMapping(value="/nbtickets/{cin}")
 	public int nbTicketsByCin(@PathVariable(name = "cin")String cin){
