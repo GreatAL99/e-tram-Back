@@ -17,6 +17,7 @@ import org.sid.Etram2.dao.AdminRepository;
 import org.sid.Etram2.dao.HoraireRepository;
 import org.sid.Etram2.dao.ResGuichetRepository;
 import org.sid.Etram2.dao.StationRepository;
+import org.sid.Etram2.dao.TicketRepository;
 import org.sid.Etram2.dao.TramRepository;
 import org.sid.Etram2.dao.VoyageRepository;
 import org.sid.Etram2.dao.VoyageurRepository;
@@ -50,6 +51,12 @@ public class EtramApplication implements CommandLineRunner{
 	@Autowired 
 	private AdminRepository adminRepository;
 	
+	@Autowired
+	private TicketRepository ticketRepository;
+	
+	@Autowired
+	private VoyageurRepository voyageurRepository;
+	
 	
 	public static void main(String[] args) {
 		SpringApplication.run(EtramApplication.class, args);
@@ -62,6 +69,7 @@ public class EtramApplication implements CommandLineRunner{
 	@Override
 	public void run(String... args) throws Exception {
 		configurationSource.exposeIdsFor(Station.class,Horaire.class,Tram.class,Voyage.class,Voyageur.class,Ticket.class,Solde.class,ResGuichet.class,Admin.class);
+		ticketRepository.save(new Ticket(null,false,177013,6,null,voyageurRepository.getOne("W419826")));
 		/*Tram T = tramRepository.getOne("T145");
 		T.setNom("Tram145");
 		T.setRole("tram");
