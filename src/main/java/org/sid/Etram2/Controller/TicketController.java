@@ -156,10 +156,18 @@ public class TicketController {
 		}
 		return list;
 	}
+
+	@RequestMapping(value = "/listTicketsVNV",method = RequestMethod.GET)
+	public Page<Ticket> listTicketsV( @RequestParam(name="etat_val")boolean etat_val,
+									  @RequestParam(name="username")String username,
+									  @RequestParam(name="page",defaultValue = "0")int page,
+			  						  @RequestParam(name="size",defaultValue = "5")int size)
+	{
+		Pageable paging =  PageRequest.of(page,size);
+		return ticketRepository.getAllVNV(etat_val,username,paging);
+	}
 	
-	//RE-DO: Nbtickets
-	
-	@GetMapping(value = "/acheter/{cin}&{nbTickets}") //&{date}&{station}
+	@PostMapping(value = "/acheter/{cin}&{nbTickets}") //&{date}&{station}
 	public void acheter(@PathVariable(name = "cin") String cin,@PathVariable(name = "nbTickets") int nbTickets/*
 			,@PathVariable(name = "date") String date,
 			@PathVariable(name = "station") String station*/) {

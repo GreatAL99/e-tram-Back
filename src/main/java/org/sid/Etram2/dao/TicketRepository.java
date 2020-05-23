@@ -24,6 +24,6 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
 	public List<Ticket> getAll();
 	@Query(value="SELECT * FROM Ticket ORDER BY RAND() LIMIT 1", nativeQuery = true)
 	public Ticket find();
-
-
+	@Query("select t from Ticket t inner join t.voyageur v where t.etat_val = :etat_val and v.username LIKE:username")
+	public Page<Ticket> getAllVNV(@Param("etat_val")boolean etat_val,@Param("username")String username,Pageable pageable);
 }

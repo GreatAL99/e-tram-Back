@@ -77,12 +77,13 @@ public class TramController {
 		LocalDateTime now = LocalDateTime.now();
 		String dateN = dtf.format(now).substring(0, 10);
 		String heureN = dtf.format(now).substring(11, 16);
-
+		int trouve = 0;
 		int min = 100000;
 		Long idmin = null;
 
 		for (Ticket t : ticketRepository.findAll()) {
 			if (t.getCode_val() == code) {
+				trouve = 1;
 				t.setEtat_val(true);
 				t.setCode_val(0);
 				for (Horaire h : horaireRepository.findAll()) {
@@ -104,7 +105,8 @@ public class TramController {
 			}
 		}
 		//return "Code erroné! Veuillez vérifier votre code SVP.";
-		throw new RuntimeException("Code erroné! Veuillez vérifier votre code SVP.");
+		if (trouve==0)
+			throw new RuntimeException("Code erroné! Veuillez vérifier votre code SVP.");
 	
 	}
 }

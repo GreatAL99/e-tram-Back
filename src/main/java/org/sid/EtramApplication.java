@@ -47,6 +47,9 @@ public class EtramApplication implements CommandLineRunner{
 	@Autowired
 	private ResGuichetRepository resGuichetRepository;
 	
+	@Autowired 
+	private AdminRepository adminRepository;
+	
 	
 	public static void main(String[] args) {
 		SpringApplication.run(EtramApplication.class, args);
@@ -59,10 +62,18 @@ public class EtramApplication implements CommandLineRunner{
 	@Override
 	public void run(String... args) throws Exception {
 		configurationSource.exposeIdsFor(Station.class,Horaire.class,Tram.class,Voyage.class,Voyageur.class,Ticket.class,Solde.class,ResGuichet.class,Admin.class);
-		Horaire H = horaireRepository.getOne((long)1);
-				H.setHeure("23:30");
-				H.setDate("2020-05-22");
-		horaireRepository.save(H);
+		/*Tram T = tramRepository.getOne("T145");
+		T.setNom("Tram145");
+		T.setRole("tram");
+		tramRepository.save(T);
+		Admin A = adminRepository.getOne("JT77690");
+		A.setEmail("mohamedelmimouni@student.emi.ac.ma");
+		A.setTel("0671990829");
+		adminRepository.save(A);*/
+		/*Horaire H = horaireRepository.getOne((long)1);
+				H.setHeure("00:30");
+				H.setDate("2020-05-23");
+		horaireRepository.save(H);*/
 		/*
 		Voyage V = voyageRepository.getOne((long)1);
 		Station S = stationRepository.getOne((long)1);
